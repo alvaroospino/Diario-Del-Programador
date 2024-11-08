@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="img/icono.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>./dev/diary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Modal de Bienvenida -->
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-logo">
+                <span class="code-icon">{ }</span>
+            </div>
+            <h3 id="modalTitle">./dev/diary</h3>
+            <!-- Agregamos un ID específico al botón de cerrar -->
+            <button id="closeModalBtn" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="modalMessage">
+                <h2>¡Bienvenido a tu diario de desarrollo personal! 📝</h2>
+                <h3>Creado para los programadores Por Alvaro David Ospino</h3>
+                <br>
+                <p>Aquí podrás:</p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li>✨ Documentar tu viaje en el desarrollo</li>
+                    <li>💡 Guardar tus ideas y proyectos</li>
+                    <li>💻 Almacenar snippets de código</li>
+                    <li>🎯 Hacer seguimiento de tu progreso</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <!-- Agregamos un ID específico al botón de leer más -->
+            <button id="readMoreBtn" class="modal-btn">Leer más</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+    <div class="container">
+        <header class="header animate__animated animate__fadeIn">
+            <h1>./dev/diary</h1>
+            <p>Documenta tu viaje en el desarrollo, ideas y vida</p>
+        </header>
+
+        <div class="search-bar animate__animated animate__fadeIn">
+            <input type="text" id="searchInput" placeholder="Buscar en tu diario...">
+            <div class="filter-options">
+                <button class="filter-btn active" data-filter="all">Todo</button>
+                <button class="filter-btn" data-filter="code">Código</button>
+                <button class="filter-btn" data-filter="idea">Ideas</button>
+                <button class="filter-btn" data-filter="daily">Diario</button>
+            </div>
+        </div>
+
+        <form id="entryForm" class="entry-form animate__animated animate__fadeIn">
+            <div class="entry-type">
+                <div class="type-option active" data-type="daily">📝 Entrada diaria</div>
+                <div class="type-option" data-type="code">💻 Código</div>
+                <div class="type-option" data-type="idea">💡 Idea</div>
+            </div>
+
+            <div class="mood-selector">
+                <div class="mood-option" data-mood="🚀">🚀 Productivo</div>
+                <div class="mood-option" data-mood="💭">💭 Reflexivo</div>
+                <div class="mood-option" data-mood="🎯">🎯 Enfocado</div>
+                <div class="mood-option" data-mood="🔄">🔄 Debugging</div>
+                <div class="mood-option" data-mood="✨">✨ Inspirado</div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-full">
+                    <input type="text" id="titleInput" placeholder="Título de tu entrada..." required>
+                </div>
+                
+                <div class="form-full">
+                    <textarea id="contentInput" placeholder="Comparte tus pensamientos, experiencias o reflexiones..." rows="4"></textarea>
+                </div>
+
+                <div class="form-full code-editor" id="codeContainer" style="display: none;">
+                    <textarea id="codeInput" placeholder="// Tu código aquí" rows="6"></textarea>
+                </div>
+
+                <div class="form-full">
+                    <input type="text" id="tagsInput" placeholder="Etiquetas: javascript, react, ideas, personal...">
+                </div>
+            </div>
+
+            <button type="submit">Guardar entrada</button>
+        </form>
+
+        <div id="entriesContainer" class="entry-container">
+            <!-- Las entradas se generarán aquí -->
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Entrada</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <input type="hidden" id="editId">
+            <div class="form-full">
+                <input type="text" id="editTitleInput" placeholder="Título de tu entrada..." required>
+            </div>
+            <div class="form-full">
+                <textarea id="editContentInput" placeholder="Comparte tus pensamientos..." rows="4"></textarea>
+            </div>
+            <button onclick="saveEdit()">Guardar Cambios</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
