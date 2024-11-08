@@ -105,26 +105,6 @@ class DevDiary {
         });
     }
 
-    handleTypeSelection(element) {
-        document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('active'));
-        element.classList.add('active');
-        this.currentType = element.dataset.type;
-
-        const codeContainer = document.getElementById('codeContainer');
-        codeContainer.style.display = this.currentType === 'code' ? 'block' : 'none';
-    }
-
-    handleMoodSelection(element) {
-        document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('active'));
-        element.classList.add('active');
-        this.currentMood = element.dataset.mood;
-    }
-
-    handleFilterSelection(element) {
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        element.classList.add('active');
-        this.filterEntriesByType(element.dataset.filter);
-    }
 
     addEntry() {
         const title = document.getElementById('titleInput').value;
@@ -179,58 +159,6 @@ class DevDiary {
         localStorage.setItem('devDiaryEntries', JSON.stringify(this.entries));
     }
 
-    renderEntries(entriesToRender = this.entries) {
-        const container = document.getElementById('entriesContainer');
-        container.innerHTML = entriesToRender.map((entry, index) => `
-            <article class="entry-card animate-entry" style="animation-delay: ${index * 0.1}s">
-                <div class="entry-header">
-                    <h3 class="entry-title">${this.escapeHtml(entry.title)}</h3>
-                    <span class="mood-tag">${entry.mood}</span>
-                </div>
-                
-                <div class="entry-date">
-                    Creado: ${new Date(entry.createdAt).toLocaleString()}<br>
-                    Modificado: ${new Date(entry.modifiedAt).toLocaleString()}
-                </div>
-
-                <div class="entry-content">
-                    ${this.formatContent(entry.content)}
-                </div>
-
-                ${entry.code ? `
-                    <div class="entry-code">
-                        ${this.escapeHtml(entry.code)}
-                    </div>
-                ` : ''}
-
-                <div class="tags">
-                    ${entry.tags.map(tag => `
-                        <span class="tag">#${this.escapeHtml(tag)}</span>
-                    `).join('')}
-                </div>
-
-                <div class="actions">
-                    <button class="delete-btn" onclick="devDiary.deleteEntry(${entry.id})">
-                        Eliminar
-                    </button>
-                    <button onclick="devDiary.editEntry(${entry.id})">
-                        Editar
-                    </button>
-                </div>
-
-                <div>
-                    <h4>Historial de Modificaciones</h4>
-                    <ul class="modifications-list">
-                        ${entry.modifications.map(mod => `
-                            <li class="modification-item">
-                                ${new Date(mod.date).toLocaleString()}: ${this.escapeHtml(mod.title)}
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            </article>
-        `).join('');
-    }
 
     formatContent(content) {
         content = this.escapeHtml(content).replace(
@@ -285,6 +213,144 @@ class DevDiary {
         this.currentMood = null;
     }
 }
+
+// Nuevo método para manejar la selección de filtros
+DevDiary.prototype.handleFilterSelection = function(element) {
+    // Elimina la clase "active" de todos los botones de filtro
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    // Añade la clase "active" al botón seleccionado
+    element.classList.add('active');
+    
+    // Actualiza el filtro actual según el botón seleccionado
+    this.currentFilter = element.dataset.filter;  // 'all', 'code', 'idea', 'daily'
+    
+    // Vuelve a renderizar las entradas aplicando el filtro
+    this.renderEntries();
+};
+
+// Modificación en renderEntries para considerar `currentFilter`
+DevDiary.prototype.renderEntries = function(entriesToRender = this.entries) {
+    const container = document.getElementById('entriesContainer');
+    const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+
+    const filteredEntries = entriesToRender.filter(entry => {
+        const isTypeMatch = entry.type === this.currentType;
+        const isMoodMatch = !this.currentMood || entry.mood === this.currentMood;
+
+        // Si hay búsqueda activa, aplicar filtro de tipo y categoría
+        if (searchQuery) {
+            const isCategoryMatch = this.currentFilter === 'all' || entry.type === this.currentFilter;
+            const matchesTitle = entry.title.toLowerCase().includes(searchQuery);
+            const matchesContent = entry.content.toLowerCase().includes(searchQuery);
+            const matchesTags = entry.tags.some(tag => tag.toLowerCase().includes(searchQuery));
+            
+            return (matchesTitle || matchesContent || matchesTags) && isCategoryMatch && isMoodMatch;
+        }
+
+        // Sin búsqueda: mostrar solo las entradas que coincidan con el tipo actual y el estado de ánimo
+        return isTypeMatch && isMoodMatch;
+    });
+
+    container.innerHTML = filteredEntries.map((entry, index) => `
+        <article class="entry-card animate-entry" style="animation-delay: ${index * 0.1}s">
+            <div class="entry-header">
+                <h3 class="entry-title">${this.escapeHtml(entry.title)}</h3>
+                <span class="mood-tag">${entry.mood}</span>
+            </div>
+            
+            <div class="entry-date">
+                Creado: ${new Date(entry.createdAt).toLocaleString()}<br>
+                Modificado: ${new Date(entry.modifiedAt).toLocaleString()}
+            </div>
+
+            <div class="entry-content">
+                ${this.formatContent(entry.content)}
+            </div>
+
+            ${entry.code ? `
+                <div class="entry-code">
+                    ${this.escapeHtml(entry.code)}
+                </div>
+            ` : ''}
+
+            <div class="tags">
+                ${entry.tags.map(tag => `
+                    <span class="tag">#${this.escapeHtml(tag)}</span>
+                `).join('')}
+            </div>
+
+            <div class="actions">
+                <button class="delete-btn" onclick="devDiary.deleteEntry(${entry.id})">
+                    Eliminar
+                </button>
+                <button onclick="devDiary.editEntry(${entry.id})">
+                    Editar
+                </button>
+            </div>
+
+            <div>
+                <h4>Historial de Modificaciones</h4>
+                <ul class="modifications-list">
+                    ${entry.modifications.map(mod => `
+                        <li class="modification-item">
+                            ${new Date(mod.date).toLocaleString()}: ${this.escapeHtml(mod.title)}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        </article>
+    `).join('');
+};
+
+
+
+
+// organiza por estado de animo 
+DevDiary.prototype.handleMoodSelection = function(element) {
+    document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('active'));
+    element.classList.add('active');
+    this.currentMood = element.dataset.mood; // Actualizar el estado de ánimo actual
+
+    // Renderizar las entradas aplicando el filtro de estado de ánimo
+    this.renderEntries();
+};
+
+// mostrar el tipo sin necesidad de buscar en el filtro solo por busc¿queda en la seleccion
+DevDiary.prototype.handleTypeSelection = function(element) {
+    document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('active'));
+    element.classList.add('active');
+    this.currentType = element.dataset.type; // Actualizar el tipo de entrada actual
+
+    // Renderizar solo las entradas de la categoría seleccionada
+    this.renderEntries();
+};
+
+
+// funcion para buscar en el filtro
+DevDiary.prototype.filterEntries = function(query) {
+    const lowerCaseQuery = query.toLowerCase();
+    const filteredEntries = this.entries.filter(entry => {
+        const matchesTitle = entry.title.toLowerCase().includes(lowerCaseQuery);
+        const matchesContent = entry.content.toLowerCase().includes(lowerCaseQuery);
+        const matchesTags = entry.tags.some(tag => tag.toLowerCase().includes(lowerCaseQuery));
+        
+        return matchesTitle || matchesContent || matchesTags;
+    });
+
+    this.renderEntries(filteredEntries); // Ignora el filtro de categoría cuando hay búsqueda
+};
+
+
+DevDiary.prototype.handleTypeSelection = function(element) {
+    document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('active'));
+    element.classList.add('active');
+    this.currentType = element.dataset.type;
+
+    const codeContainer = document.getElementById('codeContainer');
+    codeContainer.style.display = (this.currentType === 'code') ? 'block' : 'none';
+
+    this.renderEntries(); // Actualizar las entradas según el tipo seleccionado
+};
 
 const devDiary = new DevDiary();
 

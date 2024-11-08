@@ -54,10 +54,11 @@
         <div class="search-bar animate__animated animate__fadeIn">
             <input type="text" id="searchInput" placeholder="Buscar en tu diario...">
             <div class="filter-options">
-                <button class="filter-btn active" data-filter="all">Todo</button>
-                <button class="filter-btn" data-filter="code">Código</button>
-                <button class="filter-btn" data-filter="idea">Ideas</button>
-                <button class="filter-btn" data-filter="daily">Diario</button>
+                <button class="filter-btn active" data-filter="all" onclick="devDiary.handleFilterSelection(this)">Todo</button>
+                <button class="filter-btn" data-filter="code" onclick="devDiary.handleFilterSelection(this)">Código</button>
+                <button class="filter-btn" data-filter="idea" onclick="devDiary.handleFilterSelection(this)">Ideas</button>
+                <button class="filter-btn" data-filter="daily" onclick="devDiary.handleFilterSelection(this)">Diario</button>
+
             </div>
         </div>
 
